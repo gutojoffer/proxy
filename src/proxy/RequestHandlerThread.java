@@ -6,6 +6,7 @@
 package proxy;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
@@ -30,23 +31,44 @@ public class RequestHandlerThread extends Thread{
     public void run(){        
         try {
             // abrir a msg
-            BufferedReader inFromClient  = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            BufferedReader msg  = new BufferedReader(new InputStreamReader(client.getInputStream()));
             //Olhar o conteudo
-            while(true){
-                String clientSentence = inFromClient.readLine();
-                if (clientSentence == null)
-                        break;		
-                System.out.println(clientSentence);
-            }
-            //Criar msg de requisicao para o servidor
+            msg.readLine();
+            String secondLine = msg.readLine();
             
+            String host;
+            host = secondLine.split(" ")[1];
+            
+            //Criar msg de requisicao para o servidor
+            Socket serverConection = new Socket(host, 80); 
+            BufferedReader inFromServer = new BufferedReader(new InputStreamReader(serverConection.getInputStream())); 
+
+            DataOutputStream outToServer = new DataOutputStream(serverConection.getOutputStream());
+            
+            msg.reset();
+            
+            while(true){
+                String line = msg.readLine();
+                if (line == null) break;
+                outToServer.writeBytes(line + '\n');
+            }
+            
+
             //criar conexao com o servidor
             
             //Receber o conteudo
-            
+            while(true){
+                String line = inFromServer.readLine();
+                if (line == null) break;
+                System.out.println(line);
+                
+            }
             //Encaminhar o conteudo para o cliente
+            client.close();
         } catch (IOException ex) {
             Logger.getLogger(RequestHandlerThread.class.getName()).log(Level.SEVERE, null, ex);
+        } finally{
+            
         }
         
     }
