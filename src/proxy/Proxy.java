@@ -25,7 +25,7 @@ public class Proxy {
         String clientSentence; 
         String capitalizedSentence;
 
-        ServerSocket severSocket = new ServerSocket(8080);
+        ServerSocket severSocket = new ServerSocket(12345);
         InetAddress myAddress = severSocket.getInetAddress();
 
         System.out.println("Address: " + myAddress.getHostAddress());
